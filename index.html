@@ -35,6 +35,15 @@
   @keyframes link { 50% { transform: translateX(3px); } }
   .ghost { font: inherit; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; cursor: pointer; }
   .ghost:hover { color: #fff; border-color: rgba(255,255,255,.3); }
+  .hdr-r { display: flex; align-items: center; gap: 6px; }
+  .hdr-r button { white-space: nowrap; }
+  .signin { font: inherit; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #fff; background: none; border: none; padding: 10px 12px; cursor: pointer; }
+  .signin:hover { color: var(--mint); }
+  .member { text-align: center; }
+  .member .av { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 14px; display: grid; place-items: center; font-size: 28px; font-weight: 800; color: #fff; background: var(--grad); }
+  .mrow { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; text-align: left; }
+  .mrow span:first-child { color: var(--mut); }
+  @media (max-width: 420px) { .ghost { padding: 9px 14px; letter-spacing: .1em; } .signin { padding: 9px 8px; letter-spacing: .1em; } .long { display: none; } }
   .stage { flex: 1; display: grid; place-items: center; text-align: center; padding: 20px 24px 40px; }
   .eyebrow { font-size: 12px; letter-spacing: .4em; text-transform: uppercase; color: var(--mut); margin-bottom: 26px; }
   h1 { font-size: clamp(46px, 9vw, 116px); font-weight: 900; letter-spacing: -.05em; line-height: .95; }
@@ -99,7 +108,7 @@
 <main>
   <header>
     <div class="mark"><svg class="rings" viewBox="0 0 48 28" aria-hidden="true"><rect class="lp" x="3" y="4" width="25" height="20" rx="10" pathLength="100"/><rect class="lp" x="20" y="4" width="25" height="20" rx="10" pathLength="100"/><rect class="lt a" x="3" y="4" width="25" height="20" rx="10" pathLength="100"/><rect class="lt b" x="20" y="4" width="25" height="20" rx="10" pathLength="100"/></svg> Linkt</div>
-    <button type="button" class="ghost" data-open>Join the waitlist</button>
+    <div class="hdr-r"><button type="button" class="signin" id="signin-btn">Sign in</button><button type="button" class="ghost" data-open>Join<span class="long"> the waitlist</span></button></div>
   </header>
 
   <section class="stage">
@@ -117,6 +126,41 @@
 
   <footer><span>© 2026 LINKT</span><span>BY INVITATION</span></footer>
 </main>
+
+<div class="veil" id="veil-in" role="dialog" aria-modal="true" aria-labelledby="in-title">
+  <div class="sheet">
+    <button type="button" class="x" data-close-in aria-label="Close">×</button>
+    <!-- Sign in: email, then a one-time code -->
+    <form id="in1" novalidate>
+      <h2 id="in-title">Sign in</h2>
+      <p class="muted">For members with access. We'll send a one-time code to your work email.</p>
+      <label for="in-email">Work email</label><input id="in-email" type="email" autocomplete="email" inputmode="email" required>
+      <div class="err" id="in-e1"></div>
+      <button class="btn" type="submit">Send my code</button>
+      <button type="button" class="link" id="in-to-wl">No access yet? Join the waitlist</button>
+    </form>
+    <form id="in2" novalidate hidden>
+      <h2>Check your email</h2>
+      <p class="muted">Enter the 6-digit code sent to <b id="in-dest"></b>. It expires in 10 minutes.</p>
+      <div class="code" id="in-code"><input inputmode="numeric" maxlength="1" aria-label="Digit 1"><input inputmode="numeric" maxlength="1" aria-label="Digit 2"><input inputmode="numeric" maxlength="1" aria-label="Digit 3"><input inputmode="numeric" maxlength="1" aria-label="Digit 4"><input inputmode="numeric" maxlength="1" aria-label="Digit 5"><input inputmode="numeric" maxlength="1" aria-label="Digit 6"></div>
+      <div class="demo-code">Preview mode: real codes aren't sent yet. Your code is <b id="in-the-code"></b></div>
+      <div class="err" id="in-e2"></div>
+      <button class="btn" type="submit">Sign in</button>
+      <button type="button" class="link" id="in-back">Use a different email</button>
+    </form>
+    <div id="in3" hidden class="member">
+      <div class="av" id="m-av">L</div>
+      <h2 id="m-hi">Welcome back.</h2>
+      <p class="muted" id="m-sub"></p>
+      <div class="mrow"><span>Organization</span><span id="m-org"></span></div>
+      <div class="mrow"><span>Status</span><span id="m-st"></span></div>
+      <div class="mrow"><span>Signed in</span><span id="m-t"></span></div>
+      <p class="muted" style="margin-top:16px">Your Linkt workspace opens here once your organization is activated. We'll email you the moment it's ready.</p>
+      <button type="button" class="btn" data-close-in>Done</button>
+      <button type="button" class="link" id="signout">Sign out</button>
+    </div>
+  </div>
+</div>
 
 <div class="veil" id="veil" role="dialog" aria-modal="true" aria-labelledby="wl-title">
   <div class="sheet">
@@ -309,6 +353,55 @@
     document.getElementById("count").innerHTML = me ? "You're <b>#" + me.place.toLocaleString() + "</b> on the list." : "Invitations are limited.";
   }
   count();
+
+  // ---------- Sign in for members with access (one-time code; saved in this browser until real accounts are connected) ----------
+  var SKEY = "linkt-session", inCode = null, inEmail = null, inTries = 0;
+  function session() { try { return JSON.parse(localStorage.getItem(SKEY)); } catch (e) { return null; } }
+  function inStep(n) { ["in1", "in2", "in3"].forEach(function (id, i) { document.getElementById(id).hidden = i !== n - 1; }); }
+  function inOpen() { document.getElementById("veil-in").classList.add("on"); if (session()) { member(session()); } else { inStep(1); setTimeout(function () { document.getElementById("in-email").focus(); }, 50); } }
+  function inClose() { document.getElementById("veil-in").classList.remove("on"); }
+  function hdr() { var s = session(); document.getElementById("signin-btn").textContent = s ? "Account" : "Sign in"; }
+  document.getElementById("signin-btn").addEventListener("click", inOpen);
+  document.addEventListener("click", function (e) { if (e.target.closest("[data-close-in]") || e.target.id === "veil-in") inClose(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") inClose(); });
+  document.getElementById("in-to-wl").addEventListener("click", function () { inClose(); open(); });
+  document.getElementById("in-back").addEventListener("click", function () { inStep(1); });
+  document.getElementById("in1").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var em = document.getElementById("in-email").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { document.getElementById("in-e1").textContent = "Please enter your work email."; return; }
+    document.getElementById("in-e1").textContent = "";
+    inEmail = em; inCode = String(Math.floor(100000 + Math.random() * 900000)); inTries = 0;
+    document.getElementById("in-dest").textContent = em; document.getElementById("in-the-code").textContent = inCode;
+    document.querySelectorAll("#in-code input").forEach(function (i) { i.value = ""; }); document.getElementById("in-e2").textContent = "";
+    inStep(2); setTimeout(function () { document.querySelector("#in-code input").focus(); }, 50);
+  });
+  var inBoxes = document.querySelectorAll("#in-code input");
+  function inEntered() { return Array.prototype.map.call(inBoxes, function (b) { return b.value; }).join(""); }
+  inBoxes.forEach(function (b, i) {
+    b.addEventListener("input", function () { b.value = digits(b.value).slice(-1); if (b.value && i < 5) inBoxes[i + 1].focus(); if (inEntered().length === 6) document.getElementById("in2").requestSubmit(); });
+    b.addEventListener("keydown", function (e) { if (e.key === "Backspace" && !b.value && i > 0) inBoxes[i - 1].focus(); });
+    b.addEventListener("paste", function (e) { var d = digits((e.clipboardData || window.clipboardData).getData("text")).slice(0, 6); if (!d) return; e.preventDefault(); d.split("").forEach(function (c, j) { inBoxes[j].value = c; }); if (d.length === 6) document.getElementById("in2").requestSubmit(); });
+  });
+  document.getElementById("in2").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (inEntered() !== inCode) { inTries++; document.getElementById("in-e2").textContent = inTries >= 5 ? "Too many tries. Start again." : "That code doesn't match. Try again."; if (inTries >= 5) inStep(1); else { inBoxes.forEach(function (b) { b.value = ""; }); inBoxes[0].focus(); } return; }
+    var w = list().filter(function (x) { return x.verified && x.email.toLowerCase() === inEmail.toLowerCase(); })[0];
+    var s = { email: inEmail, name: w ? w.name : "", org: w ? w.org : inEmail.split("@")[1], place: w ? w.place : null, t: new Date().toLocaleString() };
+    try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch (x) {}
+    member(s); hdr();
+  });
+  function member(s) {
+    inStep(3);
+    document.getElementById("m-av").textContent = (s.name || s.email)[0].toUpperCase();
+    document.getElementById("m-hi").textContent = "Welcome back" + (s.name ? ", " + s.name.split(" ")[0] : "") + ".";
+    document.getElementById("m-sub").textContent = s.email;
+    document.getElementById("m-org").textContent = s.org;
+    document.getElementById("m-st").textContent = s.place ? "On the waitlist · #" + s.place.toLocaleString() : "Early access · pending activation";
+    document.getElementById("m-t").textContent = s.t;
+  }
+  document.getElementById("signout").addEventListener("click", function () { localStorage.removeItem(SKEY); hdr(); inStep(1); document.getElementById("in-email").value = ""; });
+  hdr();
 </script>
 </body>
 </html>
