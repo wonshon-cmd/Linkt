@@ -32,13 +32,13 @@
   .mark { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .32em; font-size: 13px; text-transform: uppercase; color: var(--navy); }
   .rings { width: 44px; height: 26px; overflow: visible; }
   .rings.big { width: 112px; height: 66px; display: block; margin: 0 auto 26px; }
-  .rings rect { fill: none; stroke-width: 3; }
+  .rings rect { fill: none; stroke-width: 3.4; }
   .rings .lp.a { stroke: #2F5BEA; }
   .rings .lp.b { stroke: #34C3A3; }
-  .rings .gapline { stroke: #F7F9FC; stroke-width: 5.4; }
-  .rings .lt { stroke-width: 3; stroke-linecap: round; stroke-dasharray: 14 86; animation: run 2.6s linear infinite; }
-  .rings .lt.a { stroke: #8FB0FF; filter: drop-shadow(0 0 2.5px rgba(47,91,234,.9)); }
-  .rings .lt.b { stroke: #7FF0D2; filter: drop-shadow(0 0 2.5px rgba(52,195,163,.9)); animation-delay: -1.3s; animation-direction: reverse; }
+  .rings .gapline { display: none; }
+  .rings .lt { stroke-width: 3; stroke-linecap: round; stroke-dasharray: 16 84; animation: run 9s linear infinite; }
+  .rings .lt.a { stroke: #6F93FF; }
+  .rings .lt.b { stroke: #6EE6C6; animation-delay: -4.5s; animation-direction: reverse; }
   @keyframes run { to { stroke-dashoffset: -100; } }
   @media (prefers-reduced-motion: reduce) { .rings .lt { animation: none; } }
   .ghost { font: inherit; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--navy); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; cursor: pointer; }
