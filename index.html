@@ -159,8 +159,7 @@
       <div class="mrow"><span>Organization</span><span id="m-org"></span></div>
       <div class="mrow"><span>Status</span><span id="m-st"></span></div>
       <div class="mrow"><span>Signed in</span><span id="m-t"></span></div>
-      <p class="muted" style="margin-top:16px">Your Linkt workspace opens here once your organization is activated. We'll email you the moment it's ready.</p>
-      <button type="button" class="btn" data-close-in>Done</button>
+      <button type="button" class="btn" id="open-linkt">Open Linkt →</button>
       <button type="button" class="link" id="signout">Sign out</button>
     </div>
   </div>
@@ -359,7 +358,7 @@
   count();
 
   // ---------- Sign in for members with access (one-time code; saved in this browser until real accounts are connected) ----------
-  var SKEY = "linkt-session", inCode = null, inEmail = null, inTries = 0;
+  var SKEY = "lk-member", inCode = null, inEmail = null, inTries = 0;
   function session() { try { return JSON.parse(localStorage.getItem(SKEY)); } catch (e) { return null; } }
   function inStep(n) { ["in1", "in2", "in3"].forEach(function (id, i) { document.getElementById(id).hidden = i !== n - 1; }); }
   function inOpen() { document.getElementById("veil-in").classList.add("on"); if (session()) { member(session()); } else { inStep(1); setTimeout(function () { document.getElementById("in-email").focus(); }, 50); } }
@@ -401,10 +400,13 @@
     document.getElementById("m-hi").textContent = "Welcome back" + (s.name ? ", " + s.name.split(" ")[0] : "") + ".";
     document.getElementById("m-sub").textContent = s.email;
     document.getElementById("m-org").textContent = s.org;
-    document.getElementById("m-st").textContent = s.place ? "On the waitlist · #" + s.place.toLocaleString() : "Early access · pending activation";
+    document.getElementById("m-st").textContent = s.place ? "On the waitlist · #" + s.place.toLocaleString() : "Member · access granted";
     document.getElementById("m-t").textContent = s.t;
   }
   document.getElementById("signout").addEventListener("click", function () { localStorage.removeItem(SKEY); hdr(); inStep(1); document.getElementById("in-email").value = ""; });
+  document.getElementById("open-linkt").addEventListener("click", function () { location.href = "app/"; });
+  // Sent here from the program because you weren't signed in
+  if (/[?&]signin=1/.test(location.search)) inOpen();
   hdr();
 </script>
 </body>
