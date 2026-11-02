@@ -218,10 +218,11 @@
     <!-- Step 3: on the list -->
     <div id="s3" hidden class="done">
       <div class="ring">✓</div>
-      <h2>You're on the list.</h2>
+      <h2 id="s3-h">You're on the list.</h2>
       <div class="pos" id="pos">#0</div>
-      <div class="pos-l">Your place in line</div>
+      <div class="pos-l" id="pos-l">Your place in line</div>
       <p class="muted" id="done-msg" style="margin-top:16px"></p>
+      <button type="button" class="btn" id="s3-open" hidden onclick="location.href='app/'">Open Linkt →</button>
       <button type="button" class="link" data-close>Close</button>
     </div>
   </div>
@@ -234,6 +235,24 @@
   if (bt) setInterval(function () { bt.style.opacity = 0; setTimeout(function () { gi = (gi + 1) % GAPS.length; bt.textContent = GAPS[gi]; bt.style.opacity = 1; }, 500); }, 3200);
 
   // ---------- Waitlist (saved in this browser until a real form + verification service is connected) ----------
+  // ---------- Who has full access (SHA-256 of the lowercase email, so addresses aren't readable here) ----------
+  var ACCESS = [
+    "5c5bc547926640cdf9839d7cb58c4bc019b4fa2d33a30fec921594c2d11615ff", // CarePak Pharmacy
+    "6f372e4addbf90df838e5780db2edb07eb9e4bf75d7c3b4d38cce03bbc267b36"  // founder
+  ];
+  function hasAccess(email) {
+    if (!(window.crypto && crypto.subtle && window.TextEncoder)) return Promise.resolve(false);
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(email).trim().toLowerCase())).then(function (b) {
+      var h = Array.prototype.map.call(new Uint8Array(b), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+      return ACCESS.indexOf(h) >= 0;
+    }).catch(function () { return false; });
+  }
+  function grant(p) {
+    var s = { email: p.email, name: p.name || "", org: p.org || p.email.split("@")[1], place: null, access: true, t: new Date().toLocaleString() };
+    try { localStorage.setItem("lk-member", JSON.stringify(s)); } catch (x) {}
+    return s;
+  }
+
   var KEY = "linkt-waitlist", person = null, code = null, via = "email", tries = 0;
   function list() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
   function base() { return 1200 + list().length * 7; }
@@ -341,12 +360,20 @@
     l.forEach(function (x) { x.me = false; });
     var rec = Object.assign({}, person, { verified: true, via: via, me: true, t: new Date().toISOString(), place: base() + 1 });
     l.push(rec);
-    try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (x) {}
-    show(rec);
+    hasAccess(rec.email).then(function (ok) {
+      if (ok) { rec.access = true; grant(rec); hdr(); }
+      try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (x) {}
+      show(rec);
+    });
   });
 
   function show(rec) {
     step(4);
+    var ok = !!rec.access;
+    document.getElementById("s3-h").textContent = ok ? "You're in." : "You're on the list.";
+    document.getElementById("pos").hidden = ok; document.getElementById("pos-l").hidden = ok;
+    document.getElementById("s3-open").hidden = !ok;
+    if (ok) { document.getElementById("done-msg").textContent = "Welcome, " + rec.name.split(" ")[0] + ". " + rec.org + " has full access to Linkt."; return count(); }
     document.getElementById("pos").textContent = "#" + rec.place.toLocaleString();
     document.getElementById("done-msg").textContent = "Thanks, " + rec.name.split(" ")[0] + ". We'll reach out to " + rec.org + (rec.town ? " in " + rec.town + ", " + rec.state : "") + " when your invitation is ready.";
     count();
@@ -359,7 +386,7 @@
 
   // ---------- Sign in for members with access (one-time code; saved in this browser until real accounts are connected) ----------
   var SKEY = "lk-member", inCode = null, inEmail = null, inTries = 0;
-  function session() { try { return JSON.parse(localStorage.getItem(SKEY)); } catch (e) { return null; } }
+  function session() { try { var m = JSON.parse(localStorage.getItem(SKEY)); return m && m.access ? m : null; } catch (e) { return null; } }
   function inStep(n) { ["in1", "in2", "in3"].forEach(function (id, i) { document.getElementById(id).hidden = i !== n - 1; }); }
   function inOpen() { document.getElementById("veil-in").classList.add("on"); if (session()) { member(session()); } else { inStep(1); setTimeout(function () { document.getElementById("in-email").focus(); }, 50); } }
   function inClose() { document.getElementById("veil-in").classList.remove("on"); }
@@ -374,11 +401,17 @@
     var em = document.getElementById("in-email").value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { document.getElementById("in-e1").textContent = "Please enter your work email."; return; }
     document.getElementById("in-e1").textContent = "";
+    hasAccess(em).then(function (ok) {
+      if (!ok) { document.getElementById("in-e1").textContent = "This email doesn't have access yet. Join the waitlist below and we'll reach out."; return; }
+      inSend(em);
+    });
+  });
+  function inSend(em) {
     inEmail = em; inCode = String(Math.floor(100000 + Math.random() * 900000)); inTries = 0;
     document.getElementById("in-dest").textContent = em; document.getElementById("in-the-code").textContent = inCode;
     document.querySelectorAll("#in-code input").forEach(function (i) { i.value = ""; }); document.getElementById("in-e2").textContent = "";
     inStep(2); setTimeout(function () { document.querySelector("#in-code input").focus(); }, 50);
-  });
+  }
   var inBoxes = document.querySelectorAll("#in-code input");
   function inEntered() { return Array.prototype.map.call(inBoxes, function (b) { return b.value; }).join(""); }
   inBoxes.forEach(function (b, i) {
@@ -390,8 +423,7 @@
     e.preventDefault();
     if (inEntered() !== inCode) { inTries++; document.getElementById("in-e2").textContent = inTries >= 5 ? "Too many tries. Start again." : "That code doesn't match. Try again."; if (inTries >= 5) inStep(1); else { inBoxes.forEach(function (b) { b.value = ""; }); inBoxes[0].focus(); } return; }
     var w = list().filter(function (x) { return x.verified && x.email.toLowerCase() === inEmail.toLowerCase(); })[0];
-    var s = { email: inEmail, name: w ? w.name : "", org: w ? w.org : inEmail.split("@")[1], place: w ? w.place : null, t: new Date().toLocaleString() };
-    try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch (x) {}
+    var s = grant({ email: inEmail, name: w ? w.name : "", org: w ? w.org : "" });
     member(s); hdr();
   });
   function member(s) {
@@ -400,7 +432,7 @@
     document.getElementById("m-hi").textContent = "Welcome back" + (s.name ? ", " + s.name.split(" ")[0] : "") + ".";
     document.getElementById("m-sub").textContent = s.email;
     document.getElementById("m-org").textContent = s.org;
-    document.getElementById("m-st").textContent = s.place ? "On the waitlist · #" + s.place.toLocaleString() : "Member · access granted";
+    document.getElementById("m-st").textContent = s.place ? "On the waitlist · #" + s.place.toLocaleString() : "Member · full access";
     document.getElementById("m-t").textContent = s.t;
   }
   document.getElementById("signout").addEventListener("click", function () { localStorage.removeItem(SKEY); hdr(); inStep(1); document.getElementById("in-email").value = ""; });
