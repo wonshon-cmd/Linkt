@@ -293,8 +293,23 @@
     return {
       version: NDA_VERSION, name: who.name, email: who.email, phone: pretty(who.phone), phoneVerified: verifiedBy,
       typed: document.getElementById("typed").value.trim(), signedAt: signedAt.toISOString(), localTime: signedAt.toString(),
-      signInEmail: me.email || "", organization: me.org || "", device: navigator.userAgent, page: location.href, signature: pad.toDataURL("image/png")
+      signInEmail: me.email || "", organization: me.org || "", device: navigator.userAgent, page: location.href, signature: smallSig()
     };
+  }
+  // A small copy of the signature (keeps the email light)
+  function smallSig() {
+    var w = 480, h = Math.round(w * pad.height / pad.width), c = document.createElement("canvas"); c.width = w; c.height = h;
+    var x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, w, h); x.drawImage(pad, 0, 0, w, h);
+    return c.toDataURL("image/png");
+  }
+  // Send through FormSubmit. If the quick way fails, use the plain form way (can't read the reply, but it's delivered).
+  function postForm(to, body) {
+    return fetch("https://formsubmit.co/ajax/" + to, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) })
+      .then(function (res) { return res.json().catch(function () { return {}; }).then(function (j) { if (!res.ok || String(j.success) === "false") throw new Error(j.message || ("HTTP " + res.status)); return { confirmed: true }; }); })
+      .catch(function (err) {
+        var f = new URLSearchParams(); Object.keys(body).forEach(function (k) { if (k !== "_autoresponse") f.append(k, body[k]); });
+        return fetch("https://formsubmit.co/" + to, { method: "POST", mode: "no-cors", body: f }).then(function () { return { confirmed: false, why: String(err && err.message || err) }; });
+      });
   }
   function sendToOwner(r) {
     var body = {
@@ -306,15 +321,14 @@
       signed_in_as: r.signInEmail, organization: r.organization, agreement_version: r.version,
       device: r.device, page: r.page, agreement_text: ndaText(), drawn_signature_png: r.signature
     };
-    return fetch("https://formsubmit.co/ajax/" + CONFIG.notifyEmail, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) })
-      .then(function (res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json().catch(function () { return {}; }); });
+    return postForm(CONFIG.notifyEmail, body);
   }
   var saved = null;
   document.getElementById("sign").addEventListener("click", function () {
     if (!checkSign()) return;
     var b = this, r = record(); b.disabled = true; b.textContent = "Sending your signed copy…"; document.getElementById("e4").textContent = "";
-    sendToOwner(r).then(function () {
-      saved = r;
+    sendToOwner(r).then(function (res) {
+      saved = r; r.delivery = res.confirmed ? "confirmed" : "sent, not confirmed (" + res.why + ")";
       var all = {}; try { all = JSON.parse(localStorage.getItem("lk-nda")) || {}; } catch (x) {}
       var keep = Object.assign({}, r); delete keep.signature;
       all[(me.email || r.email).toLowerCase()] = keep;
@@ -327,7 +341,8 @@
   });
 
   // ---------- Done ----------
-  document.getElementById("open").addEventListener("click", function () { location.href = "app/"; });
+  var NEXT = /[?&]next=rx\b/.test(location.search) ? "rx/" : "app/";
+  document.getElementById("open").addEventListener("click", function () { location.href = NEXT; });
   document.getElementById("copy").addEventListener("click", function () {
     if (!saved) return; var r = saved;
     var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
@@ -341,7 +356,7 @@
 
   // Already signed on this device? Skip straight to the app.
   (function () { var all = {}; try { all = JSON.parse(localStorage.getItem("lk-nda")) || {}; } catch (x) {}
-    if (me.email && all[me.email.toLowerCase()]) location.replace("app/"); })();
+    if (me.email && all[me.email.toLowerCase()]) location.replace(NEXT); })();
 </script>
 </body>
 </html>
