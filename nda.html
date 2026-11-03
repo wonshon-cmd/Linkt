@@ -341,7 +341,7 @@
   });
 
   // ---------- Done ----------
-  var NEXT = /[?&]next=rx\b/.test(location.search) ? "rx/" : "app/";
+  var NEXT = /[?&]next=rx\b/.test(location.search) ? "rx/" : /[?&]next=joe\b/.test(location.search) ? "app/#joe" : "app/";
   document.getElementById("open").addEventListener("click", function () { location.href = NEXT; });
   document.getElementById("copy").addEventListener("click", function () {
     if (!saved) return; var r = saved;
