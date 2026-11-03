@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Linkt · Confidentiality agreement</title>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=4">
+<link rel="icon" type="image/png" href="favicon.png?v=4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+  // Only people with access come here; everyone else goes back to sign in
+  (function () { var m = null; try { m = JSON.parse(localStorage.getItem("lk-member")); } catch (e) {}
+    if (!m || !m.access) location.replace("./?signin=1"); })();
+</script>
+<style>
+  :root { --g: #34C3A3; --blue: #2F5BEA; --navy: #0A1128; --grad: linear-gradient(135deg, #2F5BEA, #34C3A3 70%, #7FDCC0); --mut: #5B6680; --line: #E3E8F0; --field: #F3F6FA; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Inter", system-ui, sans-serif; background: #F7F9FC; color: var(--navy); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  header { display: flex; align-items: center; gap: 10px; padding: 22px 24px; padding-top: max(22px, env(safe-area-inset-top)); font-weight: 800; letter-spacing: .32em; font-size: 13px; text-transform: uppercase; }
+  .rings { width: 40px; height: 24px; overflow: visible; } .rings rect { fill: none; stroke-width: 3.4; } .rings .a { stroke: #2F5BEA; } .rings .b { stroke: #34C3A3; }
+  .card { width: min(640px, calc(100% - 28px)); margin: 4px auto 40px; background: #fff; border: 1px solid var(--line); border-radius: 28px; padding: 28px 24px; box-shadow: 0 20px 60px rgba(10,17,40,.08); }
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -.03em; }
+  .muted { color: var(--mut); font-size: 15px; margin-top: 6px; line-height: 1.5; }
+  .bar { display: flex; gap: 6px; margin: 0 0 22px; } .bar i { flex: 1; height: 4px; border-radius: 3px; background: #E3E8F0; } .bar i.on { background: var(--grad); }
+  .steps { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); margin-bottom: 8px; }
+  .doc { margin-top: 16px; max-height: 46vh; overflow: auto; background: var(--field); border: 1px solid var(--line); border-radius: 18px; padding: 18px 18px; font-size: 15px; line-height: 1.6; color: #22304D; }
+  .doc h3 { font-size: 15px; margin: 14px 0 4px; color: var(--navy); } .doc h3:first-child { margin-top: 0; }
+  .doc p, .doc li { margin-top: 6px; } .doc ul { padding-left: 20px; }
+  .doc.small { max-height: none; font-size: 14px; }
+  label { display: block; margin-top: 14px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mut); }
+  input { width: 100%; margin-top: 6px; font: inherit; font-size: 16px; color: var(--navy); background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; outline: none; }
+  input:focus { border-color: var(--blue); background: #fff; } input.bad { border-color: #FF5000; }
+  .code { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 16px; } .code input { text-align: center; font-size: 26px; font-weight: 800; padding: 14px 0; }
+  .ck { display: flex; gap: 10px; align-items: flex-start; margin-top: 16px; font-size: 15px; color: #22304D; line-height: 1.45; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .ck input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--blue); flex: none; }
+  .btn { width: 100%; margin-top: 20px; font: inherit; font-size: 16px; font-weight: 800; padding: 16px 24px; border-radius: 999px; border: none; background: var(--grad); color: #fff; cursor: pointer; box-shadow: 0 8px 24px rgba(47,91,234,.18); }
+  .btn:disabled { background: #E3E8F0; color: #8D97AB; box-shadow: none; cursor: not-allowed; }
+  .btn.alt { background: #fff; color: var(--navy); border: 1px solid var(--line); box-shadow: none; }
+  .link { background: none; border: none; color: var(--mut); font: inherit; font-size: 14px; text-decoration: underline; cursor: pointer; margin-top: 14px; display: block; }
+  .err { color: #D93A00; font-size: 14px; margin-top: 10px; min-height: 18px; }
+  .note { margin-top: 12px; font-size: 13px; color: var(--mut); background: var(--field); border: 1px dashed #C5CEDD; border-radius: 12px; padding: 10px 12px; line-height: 1.45; }
+  .note b { color: #0E8A72; letter-spacing: .2em; }
+  .ok { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: #0E8A72; background: #E6F8F2; border-radius: 999px; padding: 6px 12px; margin-top: 12px; }
+  .pad-wrap { position: relative; margin-top: 6px; }
+  canvas { display: block; width: 100%; height: 170px; background: #fff; border: 2px dashed #C5CEDD; border-radius: 16px; touch-action: none; cursor: crosshair; }
+  canvas.inked { border-style: solid; border-color: var(--blue); }
+  .pad-hint { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; color: #A7B0C2; font-size: 14px; pointer-events: none; }
+  .pad-line { position: absolute; left: 18px; right: 18px; bottom: 42px; border-bottom: 1px solid #DCE2EC; pointer-events: none; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .row .link { margin-top: 6px; }
+  .sum { margin-top: 14px; border-top: 1px solid var(--line); }
+  .sum div { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .sum span:first-child { color: var(--mut); }
+  .done { text-align: center; }
+  .ring { width: 88px; height: 88px; border-radius: 50%; margin: 4px auto 16px; display: grid; place-items: center; background: var(--grad); color: #fff; font-size: 42px; font-weight: 900; }
+  #recaptcha { margin-top: 10px; }
+</style>
+</head>
+<body>
+<header><svg class="rings" viewBox="0 0 48 28" aria-hidden="true"><rect class="a" x="3" y="4" width="25" height="20" rx="10"/><rect class="b" x="20" y="4" width="25" height="20" rx="10"/></svg> Linkt</header>
+
+<div class="card">
+  <div class="bar"><i id="b1" class="on"></i><i id="b2"></i><i id="b3"></i><i id="b4"></i></div>
+
+  <!-- 1. Read -->
+  <section id="p1">
+    <div class="steps">Step 1 of 4 · Before you start</div>
+    <h1>Confidentiality agreement</h1>
+    <p class="muted">Linkt is in private preview. Please read and sign this once before you open the app. It takes about two minutes.</p>
+    <div class="doc" id="doc"></div>
+    <label class="ck"><input type="checkbox" id="read"> <span>I've read the agreement.</span></label>
+    <button class="btn" id="go1" disabled>Continue</button>
+  </section>
+
+  <!-- 2. Details -->
+  <form id="p2" hidden novalidate>
+    <div class="steps">Step 2 of 4 · Your details</div>
+    <h1>Who's signing?</h1>
+    <p class="muted">We'll text a code to your mobile phone to confirm it's you.</p>
+    <label for="d-name">Full legal name</label><input id="d-name" autocomplete="name" required>
+    <label for="d-email">Email</label><input id="d-email" type="email" autocomplete="email" inputmode="email" required>
+    <label for="d-phone">Mobile phone</label><input id="d-phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(201) 555-0123" required>
+    <div class="err" id="e2"></div>
+    <div id="recaptcha"></div>
+    <button class="btn" type="submit" id="send">Text me a code</button>
+    <button type="button" class="link" data-back="1">Back to the agreement</button>
+  </form>
+
+  <!-- 3. Verify phone -->
+  <form id="p3" hidden novalidate>
+    <div class="steps">Step 3 of 4 · Verify your phone</div>
+    <h1>Check your texts</h1>
+    <p class="muted">Enter the 6-digit code we sent to <b id="dest"></b>.</p>
+    <div class="code" id="code"><input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1"><input inputmode="numeric" maxlength="1" aria-label="Digit 2"><input inputmode="numeric" maxlength="1" aria-label="Digit 3"><input inputmode="numeric" maxlength="1" aria-label="Digit 4"><input inputmode="numeric" maxlength="1" aria-label="Digit 5"><input inputmode="numeric" maxlength="1" aria-label="Digit 6"></div>
+    <div class="note" id="preview-note" hidden>Preview mode: text messages aren't connected yet. Your code is <b id="the-code"></b></div>
+    <div class="err" id="e3"></div>
+    <button class="btn" type="submit" id="verify">Verify</button>
+    <button type="button" class="link" id="resend">Send a new code</button>
+    <button type="button" class="link" data-back="2">Change my phone number</button>
+  </form>
+
+  <!-- 4. Sign -->
+  <section id="p4" hidden>
+    <div class="steps">Step 4 of 4 · Sign</div>
+    <h1>Sign the agreement</h1>
+    <div class="ok">✓ Phone verified</div>
+    <div class="sum"><div><span>Name</span><span id="s-name"></span></div><div><span>Email</span><span id="s-email"></span></div><div><span>Mobile</span><span id="s-phone"></span></div><div><span>Date</span><span id="s-date"></span></div></div>
+    <div class="row" style="margin-top:16px"><label style="margin:0">Draw your signature</label><button type="button" class="link" id="clear">Clear</button></div>
+    <div class="pad-wrap"><canvas id="pad" aria-label="Signature pad. Draw your signature with your finger or mouse."></canvas><div class="pad-line"></div><div class="pad-hint" id="pad-hint">Sign here with your finger or mouse</div></div>
+    <label for="typed">Type your full name to confirm</label><input id="typed" autocomplete="off">
+    <label class="ck"><input type="checkbox" id="agree"> <span>I agree to the Confidentiality Agreement, and I agree that my electronic signature is as binding as signing on paper.</span></label>
+    <div class="err" id="e4"></div>
+    <button class="btn" id="sign" disabled>Sign and open Linkt</button>
+    <button type="button" class="link" data-back="1">Read the agreement again</button>
+  </section>
+
+  <!-- Done -->
+  <section id="p5" hidden class="done">
+    <div class="ring">✓</div>
+    <h1>Thank you, <span id="d-first"></span>.</h1>
+    <p class="muted">Your signed agreement was sent to Linkt. You won't be asked again on this device.</p>
+    <button class="btn" id="open">Open Linkt →</button>
+    <button class="btn alt" id="copy">Download my signed copy</button>
+  </section>
+</div>
+
+<script>
+  // ---------- Settings ----------
+  var CONFIG = {
+    // Every signed agreement is emailed here (through FormSubmit; the first one sends an "Activate" email to this address)
+    notifyEmail: "jshon@carepakpharmacy.com",
+    // Real text messages: paste your Firebase web config here (see README). Until then, codes show on screen.
+    firebase: null
+  };
+  var NDA_VERSION = "1.0 · November 2, 2026";
+
+  var NDA = [
+    ["Who this is between", "This agreement is between Linkt and its founders (together, “Linkt”) and the person signing below (“you”), on your own behalf and on behalf of the organization you work for, if any."],
+    ["Why", "Linkt is letting you preview its software and related plans before public launch. Linkt may share information that isn't public, and you agree to keep it confidential."],
+    ["What's confidential", "Everything Linkt shows or tells you that isn't public, in any form, including: the Linkt app, its screens, features, workflows, designs and code; product plans and roadmaps; business models, pricing, financials and fundraising; partner, pharmacy, customer and investor names and terms; research, data and know-how; and anything marked or reasonably understood as confidential."],
+    ["What's not confidential", "Information that (a) is or becomes public through no fault of yours; (b) you already knew without a duty of confidentiality; (c) you receive lawfully from someone else without restriction; or (d) you develop independently without using Linkt's information."],
+    ["What you agree to", "<ul><li>Use the information only to evaluate or work with Linkt.</li><li>Not share it with anyone, except colleagues who need to know for that purpose and who are bound to keep it confidential. You're responsible for them.</li><li>Not copy, screenshot, record or share the app, or let anyone else use your access.</li><li>Not reverse engineer, copy or build a competing product from Linkt's information.</li><li>Protect it at least as carefully as your own confidential information, and never less than reasonable care.</li></ul>"],
+    ["If you're required by law", "If a court or law requires you to disclose something, tell Linkt first (where allowed) so it can seek protection, and disclose only what's required."],
+    ["No patient information", "The preview uses made-up sample data. Don't enter real patient information (PHI) into the preview."],
+    ["Feedback", "If you give Linkt ideas or feedback, Linkt may use them freely, without owing you anything."],
+    ["Ownership", "Linkt keeps all rights to its information and software. This agreement doesn't give you any license or ownership, and doesn't require either side to do business together."],
+    ["Returning information", "When Linkt asks, stop using and delete or return its confidential information."],
+    ["How long", "Your duties last 3 years from the date you sign, and for trade secrets, as long as they remain trade secrets."],
+    ["If it's broken", "Breaking this agreement could cause Linkt harm that money can't fully fix, so Linkt may ask a court to stop it, in addition to other remedies."],
+    ["General", "New Jersey law governs this agreement. It is the whole agreement on this subject; changes must be in writing and signed by both sides. If any part is unenforceable, the rest still applies. Electronic signatures and records are valid under the federal E-SIGN Act and the New Jersey Uniform Electronic Transactions Act."]
+  ];
+  function ndaHtml() { return NDA.map(function (s, i) { return "<h3>" + (i + 1) + ". " + s[0] + "</h3>" + (s[1].charAt(0) === "<" ? s[1] : "<p>" + s[1] + "</p>"); }).join("") + '<p style="margin-top:14px;color:#5B6680">Version ' + NDA_VERSION + "</p>"; }
+  function ndaText() { return NDA.map(function (s, i) { return (i + 1) + ". " + s[0] + ": " + s[1].replace(/<li>/g, " • ").replace(/<[^>]+>/g, ""); }).join("\n\n"); }
+  document.getElementById("doc").innerHTML = ndaHtml();
+
+  // ---------- Steps ----------
+  var me = {}; try { me = JSON.parse(localStorage.getItem("lk-member")) || {}; } catch (e) {}
+  var who = { name: me.name || "", email: me.email || "", phone: "" }, code = null, fbConfirm = null, verifiedBy = "";
+  function go(n) {
+    [1, 2, 3, 4, 5].forEach(function (i) { document.getElementById("p" + i).hidden = i !== n; });
+    [1, 2, 3, 4].forEach(function (i) { document.getElementById("b" + i).classList.toggle("on", i <= n); });
+    window.scrollTo(0, 0);
+    if (n === 4) setTimeout(sizePad, 30);
+  }
+  document.querySelectorAll("[data-back]").forEach(function (b) { b.addEventListener("click", function () { go(+b.dataset.back); }); });
+  document.getElementById("read").addEventListener("change", function () { document.getElementById("go1").disabled = !this.checked; });
+  document.getElementById("go1").addEventListener("click", function () {
+    document.getElementById("d-name").value = who.name; document.getElementById("d-email").value = who.email;
+    go(verifiedBy ? 4 : 2); setTimeout(function () { document.getElementById(who.name ? "d-phone" : "d-name").focus(); }, 50);
+  });
+
+  // ---------- Details + text a code ----------
+  function digits(s) { return (s || "").replace(/\D/g, ""); }
+  function pretty(d) { return "(" + d.slice(0, 3) + ") " + d.slice(3, 6) + "-" + d.slice(6, 10); }
+  document.getElementById("d-phone").addEventListener("input", function () {
+    var d = digits(this.value); if (d.length === 11 && d[0] === "1") d = d.slice(1); d = d.slice(0, 10);
+    this.value = d.length > 6 ? pretty(d).slice(0, 14) : d.length > 3 ? "(" + d.slice(0, 3) + ") " + d.slice(3) : d;
+  });
+  document.getElementById("p2").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = document.getElementById("d-name").value.trim(), email = document.getElementById("d-email").value.trim(), ph = digits(document.getElementById("d-phone").value);
+    var bad = [];
+    if (name.split(/\s+/).length < 2) bad.push(["d-name", "your first and last name"]);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) bad.push(["d-email", "your email"]);
+    if (ph.length !== 10 || /^[01]/.test(ph)) bad.push(["d-phone", "a 10-digit US mobile number"]);
+    ["d-name", "d-email", "d-phone"].forEach(function (id) { document.getElementById(id).classList.remove("bad"); });
+    bad.forEach(function (b) { document.getElementById(b[0]).classList.add("bad"); });
+    if (bad.length) { document.getElementById("e2").textContent = "Please enter " + bad.map(function (b) { return b[1]; }).join(", ") + "."; return; }
+    document.getElementById("e2").textContent = "";
+    who = { name: name, email: email, phone: ph };
+    sendCode();
+  });
+
+  function loadScript(src) { return new Promise(function (ok, no) { var s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+  var fbReady = null;
+  function firebaseReady() {
+    if (!fbReady) fbReady = loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js")
+      .then(function () { return loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"); })
+      .then(function () { firebase.initializeApp(CONFIG.firebase); window.lkVerifier = new firebase.auth.RecaptchaVerifier("send", { size: "invisible" }); });
+    return fbReady;
+  }
+  function sendCode() {
+    var btn = document.getElementById("send"); btn.disabled = true; btn.textContent = "Sending…";
+    document.getElementById("dest").textContent = pretty(who.phone);
+    resetBoxes(); document.getElementById("e3").textContent = "";
+    if (CONFIG.firebase) {
+      firebaseReady().then(function () { return firebase.auth().signInWithPhoneNumber("+1" + who.phone, window.lkVerifier); })
+        .then(function (c) { fbConfirm = c; document.getElementById("preview-note").hidden = true; go(3); boxes[0].focus(); })
+        .catch(function (err) { document.getElementById("e2").textContent = "We couldn't send a text to that number. Please check it and try again." + (err && err.code ? " (" + err.code + ")" : ""); go(2); })
+        .then(function () { btn.disabled = false; btn.textContent = "Text me a code"; });
+    } else {
+      code = String(Math.floor(100000 + Math.random() * 900000));
+      document.getElementById("the-code").textContent = code; document.getElementById("preview-note").hidden = false;
+      btn.disabled = false; btn.textContent = "Text me a code";
+      go(3); setTimeout(function () { boxes[0].focus(); }, 50);
+    }
+  }
+  document.getElementById("resend").addEventListener("click", function () { sendCode(); document.getElementById("e3").textContent = "A new code is on its way."; });
+
+  var boxes = document.querySelectorAll("#code input"), tries = 0;
+  function entered() { return Array.prototype.map.call(boxes, function (b) { return b.value; }).join(""); }
+  function resetBoxes() { boxes.forEach(function (b) { b.value = ""; }); }
+  boxes.forEach(function (b, i) {
+    b.addEventListener("input", function () {
+      var d = digits(b.value);
+      if (d.length > 1) { d.slice(0, 6 - i).split("").forEach(function (c, j) { boxes[i + j].value = c; }); } else b.value = d;
+      if (b.value && i < 5) boxes[Math.min(5, i + Math.max(1, d.length))].focus();
+      if (entered().length === 6) document.getElementById("p3").requestSubmit();
+    });
+    b.addEventListener("keydown", function (e) { if (e.key === "Backspace" && !b.value && i > 0) boxes[i - 1].focus(); });
+    b.addEventListener("paste", function (e) { var d = digits((e.clipboardData || window.clipboardData).getData("text")).slice(0, 6); if (!d) return; e.preventDefault(); d.split("").forEach(function (c, j) { boxes[j].value = c; }); if (d.length === 6) document.getElementById("p3").requestSubmit(); });
+  });
+  function wrongCode() {
+    tries++;
+    document.getElementById("e3").textContent = tries >= 5 ? "Too many tries. We sent a new code." : "That code doesn't match. Try again.";
+    if (tries >= 5) { tries = 0; sendCode(); } else { resetBoxes(); boxes[0].focus(); }
+  }
+  function phoneOk(how) { verifiedBy = how; tries = 0; fillSummary(); go(4); }
+  document.getElementById("p3").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var c = entered(); if (c.length !== 6) { document.getElementById("e3").textContent = "Enter all 6 digits."; return; }
+    if (fbConfirm) {
+      document.getElementById("verify").disabled = true;
+      fbConfirm.confirm(c).then(function () { try { firebase.auth().signOut(); } catch (x) {} phoneOk("Text message code (Firebase)"); })
+        .catch(wrongCode).then(function () { document.getElementById("verify").disabled = false; });
+    } else if (c === code) phoneOk("PREVIEW MODE: code shown on screen, not texted");
+    else wrongCode();
+  });
+
+  // ---------- Sign ----------
+  var signedAt = null;
+  function fillSummary() {
+    signedAt = new Date();
+    document.getElementById("s-name").textContent = who.name; document.getElementById("s-email").textContent = who.email;
+    document.getElementById("s-phone").textContent = pretty(who.phone) + " ✓"; document.getElementById("s-date").textContent = signedAt.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+  }
+  var pad = document.getElementById("pad"), ctx = pad.getContext("2d"), drawing = false, inked = 0, last = null;
+  function sizePad() {
+    var r = pad.getBoundingClientRect(), dpr = window.devicePixelRatio || 1; if (!r.width) return;
+    var keep = inked ? pad.toDataURL() : null;
+    pad.width = r.width * dpr; pad.height = r.height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineWidth = 2.6; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#0A1128";
+    if (keep) { var im = new Image(); im.onload = function () { ctx.drawImage(im, 0, 0, r.width, r.height); }; im.src = keep; }
+  }
+  window.addEventListener("resize", function () { if (!document.getElementById("p4").hidden) sizePad(); });
+  function pt(e) { var r = pad.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  pad.addEventListener("pointerdown", function (e) { drawing = true; last = pt(e); pad.setPointerCapture(e.pointerId); ctx.beginPath(); ctx.arc(last.x, last.y, 1.2, 0, 7); ctx.fillStyle = "#0A1128"; ctx.fill(); });
+  pad.addEventListener("pointermove", function (e) {
+    if (!drawing) return; var p = pt(e);
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    inked += Math.hypot(p.x - last.x, p.y - last.y); last = p;
+    if (inked > 40) { pad.classList.add("inked"); document.getElementById("pad-hint").hidden = true; }
+    checkSign();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(function (ev) { pad.addEventListener(ev, function () { drawing = false; }); });
+  document.getElementById("clear").addEventListener("click", function () { ctx.clearRect(0, 0, pad.width, pad.height); inked = 0; pad.classList.remove("inked"); document.getElementById("pad-hint").hidden = false; checkSign(); });
+  function norm(s) { return s.trim().toLowerCase().replace(/\s+/g, " "); }
+  function checkSign() {
+    var t = document.getElementById("typed").value, why = "";
+    if (inked <= 40) why = "Draw your signature in the box.";
+    else if (norm(t) !== norm(who.name)) why = "Type your name exactly as above: " + who.name + ".";
+    else if (!document.getElementById("agree").checked) why = "Tick the box to agree.";
+    var b = document.getElementById("sign"); b.disabled = !!why; b.title = why;
+    document.getElementById("e4").textContent = (inked > 40 && t) ? why : "";
+    return !why;
+  }
+  document.getElementById("typed").addEventListener("input", checkSign);
+  document.getElementById("agree").addEventListener("change", checkSign);
+
+  function record() {
+    return {
+      version: NDA_VERSION, name: who.name, email: who.email, phone: pretty(who.phone), phoneVerified: verifiedBy,
+      typed: document.getElementById("typed").value.trim(), signedAt: signedAt.toISOString(), localTime: signedAt.toString(),
+      signInEmail: me.email || "", organization: me.org || "", device: navigator.userAgent, page: location.href, signature: pad.toDataURL("image/png")
+    };
+  }
+  function sendToOwner(r) {
+    var body = {
+      _subject: "Signed NDA: " + r.name + " (" + r.email + ")",
+      _template: "table", _captcha: "false",
+      _autoresponse: "Thanks for signing the Linkt confidentiality agreement (version " + r.version + ") on " + r.localTime + ". Please keep this email for your records.",
+      name: r.name, email: r.email, phone: r.phone, phone_verified_by: r.phoneVerified,
+      typed_signature: r.typed, signed_at_utc: r.signedAt, signed_at_local: r.localTime,
+      signed_in_as: r.signInEmail, organization: r.organization, agreement_version: r.version,
+      device: r.device, page: r.page, agreement_text: ndaText(), drawn_signature_png: r.signature
+    };
+    return fetch("https://formsubmit.co/ajax/" + CONFIG.notifyEmail, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) })
+      .then(function (res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json().catch(function () { return {}; }); });
+  }
+  var saved = null;
+  document.getElementById("sign").addEventListener("click", function () {
+    if (!checkSign()) return;
+    var b = this, r = record(); b.disabled = true; b.textContent = "Sending your signed copy…"; document.getElementById("e4").textContent = "";
+    sendToOwner(r).then(function () {
+      saved = r;
+      var all = {}; try { all = JSON.parse(localStorage.getItem("lk-nda")) || {}; } catch (x) {}
+      var keep = Object.assign({}, r); delete keep.signature;
+      all[(me.email || r.email).toLowerCase()] = keep;
+      try { localStorage.setItem("lk-nda", JSON.stringify(all)); } catch (x) {}
+      document.getElementById("d-first").textContent = r.name.split(" ")[0];
+      go(5);
+    }).catch(function () {
+      document.getElementById("e4").textContent = "We couldn't send your signed agreement. Check your internet connection and tap Sign again.";
+    }).then(function () { b.textContent = "Sign and open Linkt"; b.disabled = false; });
+  });
+
+  // ---------- Done ----------
+  document.getElementById("open").addEventListener("click", function () { location.href = "app/"; });
+  document.getElementById("copy").addEventListener("click", function () {
+    if (!saved) return; var r = saved;
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Linkt NDA, signed by ' + esc(r.name) + '</title><style>body{font-family:Inter,system-ui,sans-serif;max-width:720px;margin:40px auto;padding:0 20px;color:#0A1128;line-height:1.55}h1{font-size:26px}h3{font-size:15px;margin:16px 0 4px}td{padding:6px 12px 6px 0;vertical-align:top}td:first-child{color:#5B6680}img{border-bottom:1px solid #0A1128;max-width:360px}</style></head><body>'
+      + "<h1>Linkt Confidentiality Agreement</h1>" + ndaHtml() + "<h2>Signature</h2><img src=\"" + r.signature + "\" alt=\"Signature\"><table>"
+      + [["Name", r.name], ["Typed signature", r.typed], ["Email", r.email], ["Mobile", r.phone], ["Phone verified by", r.phoneVerified], ["Signed", r.localTime + " (" + r.signedAt + " UTC)"], ["Version", r.version]].map(function (x) { return "<tr><td>" + x[0] + "</td><td>" + esc(x[1]) + "</td></tr>"; }).join("")
+      + "</table></body></html>";
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+    a.download = "Linkt-NDA-" + r.name.replace(/\s+/g, "-") + ".html"; document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // Already signed on this device? Skip straight to the app.
+  (function () { var all = {}; try { all = JSON.parse(localStorage.getItem("lk-nda")) || {}; } catch (x) {}
+    if (me.email && all[me.email.toLowerCase()]) location.replace("app/"); })();
+</script>
+</body>
+</html>

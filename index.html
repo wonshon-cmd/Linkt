@@ -238,8 +238,21 @@
   // ---------- Who has full access (SHA-256 of the lowercase email, so addresses aren't readable here) ----------
   var ACCESS = [
     "5c5bc547926640cdf9839d7cb58c4bc019b4fa2d33a30fec921594c2d11615ff", // CarePak Pharmacy
-    "6f372e4addbf90df838e5780db2edb07eb9e4bf75d7c3b4d38cce03bbc267b36"  // founder
+    "6f372e4addbf90df838e5780db2edb07eb9e4bf75d7c3b4d38cce03bbc267b36", // founder
+    "35b03a96d7f05a42f6299e26cac453b6bbdde443ca15001f1a5d69c92e1b7d30"  // owner (receives the logs)
   ];
+  // Every sign-in, sign-up and refused attempt is emailed here as a log (through FormSubmit)
+  var LOG_TO = "jshon@carepakpharmacy.com";
+  function logEvent(what, p) {
+    p = p || {};
+    var now = new Date(), body = {
+      _subject: "Linkt " + what + ": " + (p.email || ""), _template: "table", _captcha: "false",
+      event: what, email: p.email || "", name: p.name || "", title: p.title || "", organization: p.org || "",
+      phone: p.phone || "", location: p.town ? p.town + ", " + p.state + " " + (p.zip || "") : "",
+      time_local: now.toString(), time_utc: now.toISOString(), device: navigator.userAgent, page: location.href
+    };
+    try { fetch("https://formsubmit.co/ajax/" + LOG_TO, { method: "POST", keepalive: true, headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) }).catch(function () {}); } catch (e) {}
+  }
   function hasAccess(email) {
     if (!(window.crypto && crypto.subtle && window.TextEncoder)) return Promise.resolve(false);
     return crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(email).trim().toLowerCase())).then(function (b) {
@@ -362,6 +375,7 @@
     l.push(rec);
     hasAccess(rec.email).then(function (ok) {
       if (ok) { rec.access = true; grant(rec); hdr(); }
+      logEvent(ok ? "sign-up, full access granted" : "waitlist sign-up", rec);
       try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (x) {}
       show(rec);
     });
@@ -402,7 +416,7 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { document.getElementById("in-e1").textContent = "Please enter your work email."; return; }
     document.getElementById("in-e1").textContent = "";
     hasAccess(em).then(function (ok) {
-      if (!ok) { document.getElementById("in-e1").textContent = "This email doesn't have access yet. Join the waitlist below and we'll reach out."; return; }
+      if (!ok) { logEvent("sign-in refused (no access)", { email: em }); document.getElementById("in-e1").textContent = "This email doesn't have access yet. Join the waitlist below and we'll reach out."; return; }
       inSend(em);
     });
   });
@@ -424,6 +438,7 @@
     if (inEntered() !== inCode) { inTries++; document.getElementById("in-e2").textContent = inTries >= 5 ? "Too many tries. Start again." : "That code doesn't match. Try again."; if (inTries >= 5) inStep(1); else { inBoxes.forEach(function (b) { b.value = ""; }); inBoxes[0].focus(); } return; }
     var w = list().filter(function (x) { return x.verified && x.email.toLowerCase() === inEmail.toLowerCase(); })[0];
     var s = grant({ email: inEmail, name: w ? w.name : "", org: w ? w.org : "" });
+    logEvent("sign-in", s);
     member(s); hdr();
   });
   function member(s) {
