@@ -138,10 +138,10 @@
     <!-- Sign in: email, then a one-time code -->
     <form id="in1" novalidate>
       <h2 id="in-title">Sign in</h2>
-      <p class="muted">For members with access. We'll send a one-time code to your work email.</p>
+      <p class="muted">For members with access. Enter your work email.</p>
       <label for="in-email">Work email</label><input id="in-email" type="email" autocomplete="email" inputmode="email" required>
       <div class="err" id="in-e1"></div>
-      <button class="btn" type="submit">Send my code</button>
+      <button class="btn" type="submit">Sign in</button>
       <button type="button" class="link" id="in-to-wl">No access yet? Join the waitlist</button>
     </form>
     <form id="in2" novalidate hidden>
@@ -268,6 +268,17 @@
       return ACCESS.indexOf(h) >= 0;
     }).catch(function () { return false; });
   }
+  // Signed agreements that couldn't be emailed earlier (saved on this device) are sent again here
+  (function flushOutbox() {
+    var ob = []; try { ob = JSON.parse(localStorage.getItem("lk-outbox")) || []; } catch (e) {} if (!ob.length || !window.fetch) return;
+    var r = ob[0], f = new URLSearchParams();
+    var body = { _subject: "Signed NDA (sent again): " + r.name + " (" + r.email + ")", _template: "table", _captcha: "false", name: r.name, email: r.email, phone: r.phone, phone_verified_by: r.phoneVerified, typed_signature: r.typed, signed_at_utc: r.signedAt, signed_at_local: r.localTime, signed_in_as: r.signInEmail, agreement_version: r.version, device: r.device, drawn_signature_png: r.signature || "" };
+    Object.keys(body).forEach(function (k) { f.append(k, body[k]); });
+    var stop = new Promise(function (_, no) { setTimeout(function () { no(); }, 8000); });
+    Promise.race([fetch("https://formsubmit.co/ajax/" + LOG_TO, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(body) }), stop])
+      .then(function (res) { if (!res.ok) throw 0; }).catch(function () { return Promise.race([fetch("https://formsubmit.co/" + LOG_TO, { method: "POST", mode: "no-cors", body: f }), stop]); })
+      .then(function () { ob.shift(); try { localStorage.setItem("lk-outbox", JSON.stringify(ob)); } catch (e) {} if (ob.length) flushOutbox(); }).catch(function () {});
+  })();
   function grant(p) {
     var s = { email: p.email, name: p.name || "", org: p.org || p.email.split("@")[1], place: null, access: true, t: new Date().toLocaleString() };
     try { localStorage.setItem("lk-member", JSON.stringify(s)); } catch (x) {}
@@ -425,7 +436,10 @@
     document.getElementById("in-e1").textContent = "";
     hasAccess(em).then(function (ok) {
       if (!ok) { logEvent("sign-in refused (no access)", { email: em }); document.getElementById("in-e1").textContent = "This email doesn't have access yet. Join the waitlist below and we'll reach out."; return; }
-      inSend(em);
+      // People on the access list go straight in: no code needed
+      var w = list().filter(function (x) { return x.verified && x.email.toLowerCase() === em.toLowerCase(); })[0];
+      var ss = grant({ email: em, name: w ? w.name : "", org: w ? w.org : "" });
+      logEvent("sign-in", ss); member(ss); hdr();
     });
   });
   function inSend(em) {
